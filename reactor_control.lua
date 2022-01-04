@@ -11,12 +11,6 @@ local MAX_HEAT = reactor.getMaxHeat()
 
 local CHUNK_SIZE = 10
 
-gpu.setBackground(BG_COLOR)
-gpu.setForeground(TEXT_COLOR)
-
-gpu.fill(1, 1, WIDTH, HEIGHT, " ")
-gpu.set(6, 4, "REACTOR TEMPERATURE:")
-
 function DrawChunk(value, max_value)
   ratio = value / max_value
 
@@ -28,6 +22,15 @@ function DrawChunk(value, max_value)
   gpu.setBackground(0x4B0000)
   gpu.fill(5, 5, WIDTH * ratio - 10, CHUNK_SIZE, " ")
 end
+
+--------
+--MAIN--
+--------
+gpu.setBackground(BG_COLOR)
+gpu.setForeground(TEXT_COLOR)
+
+gpu.fill(1, 1, WIDTH, HEIGHT, " ")
+gpu.set(6, 4, "REACTOR TEMPERATURE:")
 
 while true do
   current_heat = reactor.getHeat()
