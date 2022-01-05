@@ -1,10 +1,15 @@
 Interval = {}
 
-function Interval:new(border, color, upper_text)
+function Interval:new(border, color, upper_text, text_color)
     local data= {}
         data.border = border
         data.color = color
         data.text = upper_text
+        data.text_color = text_color
+
+        if not text_color then
+          data.text_color = color
+        end
 
     function data:getColor()
         return self.color
@@ -12,6 +17,10 @@ function Interval:new(border, color, upper_text)
 
     function data:getText()
       return self.text
+    end
+
+    function data:getTextColor()
+      return self.text_color
     end
 
     function data:getBorder()
@@ -22,4 +31,17 @@ function Interval:new(border, color, upper_text)
     self.__index = self; return data
 end
 
-temperature_control = {Interval:new(1, 0x8B0000, "AUTO OFF"), Interval:new(0.9, 0xFF8C00, "OVERHEAT"), Interval:new(0.65, 0x006400)}
+temperature_control = {
+Interval:new(1, 0x8B0000, "AUTO OFF"),
+Interval:new(0.9, 0xFF8C00, "OVERHEAT"),
+Interval:new(0.65, 0x006400)
+}
+
+coolant_control = {
+Interval:new(1, 0xFF8C00, "OVERFLOW"),
+Interval:new(0.9, 0x006400, "LOW LEVEL", 0xFF8C00),
+Interval:new(0.25, 0xFF8C00, "AUTO COOL", 0x8B0000),
+Interval:new(0.1, 0x8B0000)
+}
+
+--hot_coolant_control
