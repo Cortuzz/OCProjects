@@ -2,37 +2,39 @@ local term = require("term")
 local component = require("component")
 local reactor = component.reactor_chamber
 local note = require("note")
+local transposer = component.transposer
 thresholds = require("thresholds")
 local gpu = component.gpu
 
 local WIDTH, HEIGHT = gpu.getResolution()
 
-local WARNING_LEVEL = 0.75
-local CRITICAL_LEVEL = 0.95
-
+local REACTOR_SIDE = 2
 local CHUNK_SIZE = 8
 local BG_COLOR = 0x4B0082
 local TEXT_COLOR = 0xFFD700
 local MAX_HEAT = reactor.getMaxHeat()
 
-function drawChunk(chunk_number, value, max_value, units)
-  local ratio = value / max_value
-  local chunk_height = 5 + 2 * chunk_number * CHUNK_SIZE
+local COOLANT_CAPACITY = transposer.getFluidInTank(REACTOR_SIDE, 1).capacity
+local HOT_COOLANT_CAPACITY = transposer.getFluidInTank(REACTOR_SIDE, 2).capacity
 
-  gpu.fill(27, 4, 30, 1, " ")
-  gpu.set(27, 4, value .. units .. " / " .. max_value .. units .. " [" .. 100 * ratio .. "%]")  
+function drawChunk(chunk_number, value, max_value, units, color)
+  local ratio = value / max_value
+  local chunk_height = 5 + 1.5 * chunk_number * CHUNK_SIZE
+
+  gpu.fill(27, chunk_height - 1, 30, 1, " ")
+  gpu.set(27, chunk_height - 1, value .. units .. " / " .. max_value .. units .. " [" .. 100 * ratio .. "%]")  
   
   gpu.setBackground(0x888888)
   gpu.fill(5, chunk_height, WIDTH - 10, CHUNK_SIZE, " ")
 
-  gpu.setBackground(0x4B0000)
+  gpu.setBackground(color)
   gpu.fill(5, chunk_height, WIDTH * ratio - 10, CHUNK_SIZE, " ")
 
   gpu.setBackground(BG_COLOR)
 end
 
 function drawScale(chunk_number, intervals)
-  local chunk_height = CHUNK_SIZE + 4 + 2 * chunk_number * CHUNK_SIZE
+  local chunk_height = CHUNK_SIZE + 4 + 1.5 * chunk_number * CHUNK_SIZE
   local color = nil
   local text = nil
   
@@ -48,7 +50,7 @@ function drawScale(chunk_number, intervals)
     gpu.setBackground(interval_color)
     gpu.fill(5, chunk_height, threshold_position, 1, " ")
   
-    color = value:getColor()
+    color = value:getTextColor()
     text = value:getText()
     gpu.setBackground(BG_COLOR)
   end
@@ -72,18 +74,19 @@ gpu.set(6, 4, "REACTOR TEMPERATURE:")
 
 while true do
   local current_chunk = 0
+
   local current_heat = reactor.getHeat()
   local heat_ratio = current_heat / MAX_HEAT
 
-  if heat_ratio > WARNING_LEVEL and heat_ratio < CRITICAL_LEVEL then
-    note.play(83, 1.05 - heat_ratio)
-  end
+  local coolant_level = transposer.getFluidInTank(REACTOR_SIDE, 1).amount
+  local hot_coolant_level = transposer.getFluidInTank(REACTOR_SIDE, 2).amount
   
-  if heat_ratio > CRITICAL_LEVEL then
-    note.play(83, 0.2)
-    note.play(88, 0.25)
-  end
-  
-  drawChunk(current_chunk, current_heat / 1.6, MAX_HEAT / 1.6, "T")
+  drawChunk(current_chunk, current_heat / 1.6, MAX_HEAT / 1.6, "T", 0x4B0000)
   drawScale(current_chunk, temperature_control)
+
+  drawChunk(1, coolant_level, COOLANT_CAPACITY, "mB", 0x008B8B)
+  drawScale(1, coolant_control)
+  
+  --0xDC143C
+  drawChunk(2, hot_coolant_level, HOT_COOLANT_CAPACITY, "mB", 0xB22222)
 end
