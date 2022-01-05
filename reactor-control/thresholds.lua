@@ -32,16 +32,21 @@ function Interval:new(border, color, upper_text, text_color)
 end
 
 temperature_control = {
-Interval:new(1, 0x8B0000, "AUTO OFF"),
+Interval:new(1, 0x8B0000, " DANGER "),
 Interval:new(0.9, 0xFF8C00, "OVERHEAT"),
 Interval:new(0.65, 0x006400)
 }
 
 coolant_control = {
 Interval:new(1, 0xFF8C00, "OVERFLOW"),
-Interval:new(0.9, 0x006400, "LOW LEVEL", 0xFF8C00),
-Interval:new(0.25, 0xFF8C00, "AUTO COOL", 0x8B0000),
+Interval:new(0.95, 0x006400, "LOW LEVEL", 0xFF8C00),
+Interval:new(0.25, 0xFF8C00, " DANGER ", 0x8B0000),
 Interval:new(0.1, 0x8B0000)
 }
 
---hot_coolant_control
+hot_coolant_control = {
+Interval:new(1, 0x8B0000, " DANGER "),
+Interval:new(0.9, 0xFF8C00, "OVERFLOW"),
+Interval:new(0.6, 0x006400, "LOW LEVEL", 0xFF8C00),
+Interval:new(0.1, 0xFF8C00)
+}
