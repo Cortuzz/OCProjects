@@ -17,12 +17,14 @@ local MAX_HEAT = reactor.getMaxHeat()
 local COOLANT_CAPACITY = transposer.getFluidInTank(REACTOR_SIDE, 1).capacity
 local HOT_COOLANT_CAPACITY = transposer.getFluidInTank(REACTOR_SIDE, 2).capacity
 
-function drawChunk(chunk_number, value, max_value, units, color)
+function drawChunk(chunk_number, value, max_value, text, units, color)
   local ratio = value / max_value
   local chunk_height = 5 + 1.5 * chunk_number * CHUNK_SIZE
 
-  gpu.fill(27, chunk_height - 1, 30, 1, " ")
-  gpu.set(27, chunk_height - 1, value .. units .. " / " .. max_value .. units .. " [" .. 100 * ratio .. "%]")  
+  local information = text .. ": " .. value .. units .. " / " .. max_value .. units .. " [" .. 100 * ratio .. "%]"
+
+  gpu.fill(5, chunk_height - 1, WIDTH - 10, 1, " ")
+  gpu.set(5, chunk_height - 1, information)  
   
   gpu.setBackground(0x888888)
   gpu.fill(5, chunk_height, WIDTH - 10, CHUNK_SIZE, " ")
@@ -70,7 +72,6 @@ gpu.setBackground(BG_COLOR)
 gpu.setForeground(TEXT_COLOR)
 
 gpu.fill(1, 1, WIDTH, HEIGHT, " ")
-gpu.set(6, 4, "REACTOR TEMPERATURE:")
 
 while true do
   local current_chunk = 0
@@ -81,12 +82,16 @@ while true do
   local coolant_level = transposer.getFluidInTank(REACTOR_SIDE, 1).amount
   local hot_coolant_level = transposer.getFluidInTank(REACTOR_SIDE, 2).amount
   
-  drawChunk(current_chunk, current_heat / 1.6, MAX_HEAT / 1.6, "T", 0x4B0000)
+  drawChunk(current_chunk, current_heat / 1.6, MAX_HEAT / 1.6, "REACTOR TEMPERATURE", "T", 0xF0E68C)
   drawScale(current_chunk, temperature_control)
 
-  drawChunk(1, coolant_level, COOLANT_CAPACITY, "mB", 0x008B8B)
+  drawChunk(1, coolant_level, COOLANT_CAPACITY, "COOLANT LEVEL", "mB", 0x008B8B)
   drawScale(1, coolant_control)
   
   --0xDC143C
-  drawChunk(2, hot_coolant_level, HOT_COOLANT_CAPACITY, "mB", 0xB22222)
+  drawChunk(2, hot_coolant_level, HOT_COOLANT_CAPACITY, "HOT COOLANT LEVEL", "mB", 0xB22222)
+  drawScale(2, hot_coolant_control)
+
+  --write(40, 40, reactor.getReactorEUOutput() .. "", 0xB22222)
+  --write(40, 41, reactor.getReactorEnergyOutput() .. "", 0xB22222)
 end
