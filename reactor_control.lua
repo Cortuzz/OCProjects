@@ -2,6 +2,7 @@ local term = require("term")
 local component = require("component")
 local reactor = component.reactor_chamber
 local note = require("note")
+thresholds = require("thresholds")
 local gpu = component.gpu
 
 local WIDTH, HEIGHT = gpu.getResolution()
@@ -18,6 +19,7 @@ function drawChunk(chunk_number, value, max_value, units)
   local ratio = value / max_value
   local chunk_height = 5 + 2 * chunk_number * CHUNK_SIZE
 
+  gpu.fill(27, 4, 30, 1, " ")
   gpu.set(27, 4, value .. units .. " / " .. max_value .. units .. " [" .. 100 * ratio .. "%]")  
   
   gpu.setBackground(0x888888)
@@ -29,25 +31,27 @@ function drawChunk(chunk_number, value, max_value, units)
   gpu.setBackground(BG_COLOR)
 end
 
-function drawScale(chunk_number, first_threshold, second_threshold)
+function drawScale(chunk_number, intervals)
   local chunk_height = CHUNK_SIZE + 4 + 2 * chunk_number * CHUNK_SIZE
+  local color = nil
+  local text = nil
+  
+  for index, value in pairs(intervals) do
+    local threshold_position = value:getBorder() * WIDTH - 10
+    
+    local interval_color = value:getColor()
 
-  local first_threshold_position = first_threshold * WIDTH - 10
-  local second_threshold_position = second_threshold * WIDTH - 10
+    if color then
+      write(threshold_position + 1, chunk_height + 1, text, color)
+    end
 
-  write(first_threshold_position + 1, chunk_height + 1, "OVERHEAT", 0xFF8C00)
-  write(second_threshold_position + 1, chunk_height + 1, "AUTO OFF", 0x8B0000)
-
-  gpu.setBackground(0x8B0000)
-  gpu.fill(5, chunk_height, WIDTH - 10, 1, " ")
-
-  gpu.setBackground(0xFF8C00)
-  gpu.fill(5, chunk_height, second_threshold_position, 1, " ")
-
-  gpu.setBackground(0x006400)
-  gpu.fill(5, chunk_height, first_threshold_position, 1, " ")
-
-  gpu.setBackground(BG_COLOR)
+    gpu.setBackground(interval_color)
+    gpu.fill(5, chunk_height, threshold_position, 1, " ")
+  
+    color = value:getColor()
+    text = value:getText()
+    gpu.setBackground(BG_COLOR)
+  end
 end
 
 function write(first_position, second_position, text, color)
@@ -81,5 +85,5 @@ while true do
   end
   
   drawChunk(current_chunk, current_heat / 1.6, MAX_HEAT / 1.6, "T")
-  drawScale(current_chunk, WARNING_LEVEL, CRITICAL_LEVEL)
+  drawScale(current_chunk, temperature_control)
 end
