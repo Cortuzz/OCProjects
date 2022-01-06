@@ -88,10 +88,6 @@ while true do
   drawChunk(1, coolant_level, COOLANT_CAPACITY, "COOLANT LEVEL", "mB", 0x008B8B)
   drawScale(1, coolant_control)
   
-  --0xDC143C
   drawChunk(2, hot_coolant_level, HOT_COOLANT_CAPACITY, "HOT COOLANT LEVEL", "mB", 0xB22222)
   drawScale(2, hot_coolant_control)
-
-  --write(40, 40, reactor.getReactorEUOutput() .. "", 0xB22222)
-  --write(40, 41, reactor.getReactorEnergyOutput() .. "", 0xB22222)
 end
