@@ -1,1 +1,8 @@
-# OpenComputers Projects
+# OpenComputers Projects - Jan 2022
+Проект для Minecraft автоматизаций с помощью мода OpenComputers
+### Мотивация
+Проект был взят в разработку как pet-project для моих идей по автоматизации в Minecraft
+### Планы
+В данный момент проект заброшен
+<br>
+_последние несколько лет я не играю в Minecraft =(_
